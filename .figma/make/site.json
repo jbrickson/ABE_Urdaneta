@@ -1,0 +1,11 @@
+{
+  "title": "Acquaintance Party | ABE Urdaneta",
+  "description": "Join ABE Urdaneta for an evening of celebration at the Acquaintance Party on October 16, 2026.",
+  "robots": {
+    "index": true
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

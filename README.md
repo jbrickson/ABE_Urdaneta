@@ -1,6 +1,7 @@
 # ABE Urdaneta Acquaintance Party
 
-A public event invitation for the ABE Urdaneta Acquaintance Party on October 16, 2026.
+A public event invitation and RSVP/guest-management app for the ABE Urdaneta
+Acquaintance Party on October 16, 2026.
 
 ## Run locally
 
@@ -20,5 +21,10 @@ In the repository settings, set **Pages → Build and deployment → Source** to
 **GitHub Actions** if it is not already selected. You can also start a deployment
 from the workflow's **Run workflow** button.
 
-This is a public, static invitation only. It does not include guest records,
-USN verification, RSVP collection, or administrator access.
+## RSVP and guest management
+
+The app includes the registered guest list, USN verification, RSVP confirmation,
+and an admin dashboard. It is a static, browser-only app: its guest list and
+admin password are part of the public website code, and RSVP/admin changes are
+saved in each browser's local storage. Changes made in one person's browser do
+not sync to other guests or devices.

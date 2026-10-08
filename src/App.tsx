@@ -55,57 +55,90 @@ const EVENT_DETAILS = {
 }
 
 const PROGRAM_SCHEDULE = [
-  [
-    "3:00 PM – 4:00 PM",
-    "Registration/Attendance and Photo Booth",
-    "SSC Officers / Advisers",
-  ],
-
-  ["4:00 – 4:10", "Entrance of Faculties and Staffs", "SSC Officers"],
-
-  ["4:10 – 4:15", "Prayer", "AVP"],
-
-  ["4:15 – 4:25", "Welcome Remarks", "Dr. Jeannie J. Bruan, LLB"],
-
-  ["4:25 – 4:35", "Special Dance Number", "Staffs and Faculties"],
-
-  ["4:35 – 4:40", "Presentation of SSC Officers", "SSC Advisers"],
-
-  ["4:40 – 4:45", "Induction of SSC Officers", "Dr. Jeannie J. Bruan, LLB"],
-
-  ["4:45 – 4:55", "Intermission Dance Number", "SSC Officers"],
-
-  [
-    "4:55 – 5:05",
-    "A Message from the Dean",
-    "Dean Terrence Spenzer Pascua, LPT, MBA",
-  ],
-
-  ["5:05 – 5:15", "Department Presentation", "BSIT/CS"],
-
-  ["5:15 – 5:25", "Department Presentation", "BSHM – 2nd Year"],
-
-  [
-    "5:25 – 5:45",
-    "Presentation of Mr. and Miss Acquaintance Candidates",
-    "Emcees",
-  ],
-
-  ["5:45 – 5:55", "Department Presentation", "BSA/BSBA"],
-
-  ["5:55 – 6:15", "Search for Dancing King and Queen", "Emcees"],
-
-  ["6:15 – 6:25", "Department Presentation", "BSHM – 1st Year"],
-
-  ["6:25 – 6:35", "Department Presentation", "Senior High School"],
-
-  ["6:35 – 7:00", "Dinner", "-"],
-
-  ["7:00 – 7:15", "Announcement of Winners", "Emcees"],
-
-  ["7:15 – 7:20", "Closing Remarks", "Ms. Tiffany B. Ramos"],
-
-  ["7:20 – 8:00", "Dance, Dance, Dance", "-"],
+  {
+    time: "3:00 PM – 4:00 PM",
+    activity: "Registration, attendance & photo booth",
+    person: "SSC Officers / Advisers",
+  },
+  { time: "4:00 – 4:10 PM", activity: "Prayer", person: "AVP" },
+  {
+    time: "4:10 – 4:25 PM",
+    activity: "Welcome remarks",
+    person: "Dr. Jeannie J. Braun, LLB",
+  },
+  {
+    time: "4:25 – 4:35 PM",
+    activity: "Entrance of faculties and staff",
+    person: "SSC Officers",
+  },
+  {
+    time: "4:35 – 4:40 PM",
+    activity: "Presentation of SSC Officers",
+    person: "SSC Advisers — Ms. Lovely Salguet & Mr. Mark Emarson Ayap",
+  },
+  {
+    time: "4:40 – 4:45 PM",
+    activity: "Induction of SSC Officers",
+    person: "Dr. Jeannie J. Braun, LLB",
+  },
+  {
+    time: "4:45 – 4:55 PM",
+    activity: "Intermission dance number",
+    person: "SSC Officers",
+  },
+  {
+    time: "4:55 – 5:05 PM",
+    activity: "A message from the Dean",
+    person: "Dean Terrence Spenzer Pascua, LPT, MBA",
+  },
+  {
+    time: "5:05 – 5:15 PM",
+    activity: "Department presentation",
+    person: "BSIT / CS",
+  },
+  {
+    time: "5:15 – 5:25 PM",
+    activity: "Department presentation",
+    person: "BSHM — 2nd Year",
+  },
+  {
+    time: "5:25 – 5:45 PM",
+    activity: "Presentation of Mr. and Miss Acquaintance candidates",
+    person: "Emcees",
+  },
+  {
+    time: "5:45 – 5:55 PM",
+    activity: "Department presentation",
+    person: "BSA / BSBA",
+  },
+  {
+    time: "5:55 – 6:15 PM",
+    activity: "Search for Dancing King and Queen",
+    person: "Emcees",
+  },
+  {
+    time: "6:15 – 6:25 PM",
+    activity: "Department presentation",
+    person: "BSHM — 1st Year",
+  },
+  {
+    time: "6:25 – 6:35 PM",
+    activity: "Department presentation",
+    person: "Senior High School",
+  },
+  { time: "6:35 – 7:00 PM", activity: "Dinner", person: "—" },
+  {
+    time: "7:00 – 7:15 PM",
+    activity:
+      "Announcement of Mr. and Miss Acquaintance and Dancing King and Queen",
+    person: "Emcees",
+  },
+  {
+    time: "7:15 – 7:20 PM",
+    activity: "Closing remarks",
+    person: "Ms. Tiffany B. Ramos",
+  },
+  { time: "7:20 – 8:00 PM", activity: "Dance, Dance, Dance", person: "—" },
 ]
 
 const ATTENDEES: Attendee[] = [
@@ -1022,138 +1055,305 @@ export default function App() {
               </div>
             </section>
           ) : (
-            <section className="invitation-screen">
-              <div className="invitation-header row between">
-                <div className="brand-mark brand-pill" aria-hidden="true">
-                  <span>✦</span>
-                </div>
-                <button
-                  type="button"
-                  className="back-link"
-                  onClick={() => {
-                    setVerifiedGuest(null)
-
-                    setGuestUsnInput("")
-
-                    setAttendanceChoice(null)
-
-                    setVerificationError("")
-                  }}
-                >
-                  Not {verifiedGuest.name}?
-                </button>
-              </div>
-              <article className="invitation-card formal-card">
-                <div className="invitation-side">ABE URDANETA</div>
-                <div className="invitation-body">
-                  <div className="invite-header">
-                    <span>You are warmly invited to</span>
-                    <span className="sparkle">✦</span>
-                  </div>
-                  <img
-                    className="stationery-art2"
-                    src={`${import.meta.env.BASE_URL}stationery-florals.svg`}
-                    alt=""
-                    aria-hidden="true"
-                  />
-                  <h2>
-                    {EVENT_DETAILS.title}
-                    <small>Invitation</small>
-                  </h2>
-                  <p className="reserve-line">
-                    Reserved especially for{" "}
-                    <strong>{verifiedGuest.name}</strong>
-                  </p>
-                  <div className="info-grid">
-                    <div>
-                      <label>Date</label>
-                      <strong>{EVENT_DETAILS.date}</strong>
-                    </div>
-                    <div>
-                      <label>Time</label>
-                      <strong>{EVENT_DETAILS.time}</strong>
-                    </div>
-                    <div className="wide">
-                      <label>Venue</label>
-                      <strong>{EVENT_DETAILS.venue}</strong>
-                    </div>
-                    <div>
-                      <label>Theme</label>
-                      <strong>{EVENT_DETAILS.theme}</strong>
-                    </div>
-                    <div>
-                      <label>Dress code</label>
-                      <strong>{EVENT_DETAILS.dressCode}</strong>
-                    </div>
-                  </div>
-                  <details className="schedule-details">
-                    <summary>View program schedule</summary>
-                    <div className="table-scroll">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Time</th>
-                            <th>Activity</th>
-                            <th>In charge</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {PROGRAM_SCHEDULE.map(([time, activity, person]) => (
-                            <tr key={`${time}-${activity}`}>
-                              <td>{time}</td>
-                              <td>{activity}</td>
-                              <td>{person}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </details>
-                  <div className="attendance-panel">
-                    <p className="panel-title">Please choose your attendance</p>
-                    <div className="choice-row">
-                      <button
-                        type="button"
-                        className={`choice-button attending-choice${
-                          attendanceChoice === "Attending" ? " active" : ""
-                        }`}
-                        onClick={() =>
-                          setAttendanceConfirmationChoice("Attending")
-                        }
-                        disabled={guestIsConfirmed}
-                      >
-                        COUNT ME IN
-                      </button>
-                      <button
-                        type="button"
-                        className={`choice-button${
-                          attendanceChoice === "Not Attending" ? " active" : ""
-                        }`}
-                        onClick={() =>
-                          setAttendanceConfirmationChoice("Not Attending")
-                        }
-                        disabled={guestIsConfirmed}
-                      >
-                        I CAN'T ATTEND
-                      </button>
-                    </div>
-                    {guestIsConfirmed ? (
-                      <p className="response-note">
-                        Your response has already been recorded as{" "}
-                        <strong>{verifiedGuest.status}</strong>.
-                      </p>
-                    ) : null}
+            <>
+              <section className="invitation-screen">
+                <div className="invitation-header row between">
+                  <div className="brand-mark brand-pill" aria-hidden="true">
+                    <span>✦</span>
                   </div>
                   <button
                     type="button"
-                    className="invitation-print-button"
-                    onClick={() => window.print()}
+                    className="back-link"
+                    onClick={() => {
+                      setVerifiedGuest(null)
+
+                      setGuestUsnInput("")
+
+                      setAttendanceChoice(null)
+
+                      setVerificationError("")
+                    }}
                   >
-                    Print / Save as PDF
+                    Not {verifiedGuest.name}?
                   </button>
                 </div>
-              </article>
-            </section>
+                <article className="invitation-card formal-card">
+                  <div className="invitation-side">ABE URDANETA</div>
+                  <div className="invitation-body">
+                    <div className="invite-header">
+                      <span>You are warmly invited to</span>
+                      <span className="sparkle">✦</span>
+                    </div>
+                    <img
+                      className="stationery-art2"
+                      src={`${import.meta.env.BASE_URL}stationery-florals.svg`}
+                      alt=""
+                      aria-hidden="true"
+                    />
+                    <h2>
+                      {EVENT_DETAILS.title}
+                      <small>Invitation</small>
+                    </h2>
+                    <p className="reserve-line">
+                      Reserved especially for{" "}
+                      <strong>{verifiedGuest.name}</strong>
+                    </p>
+                    <div className="info-grid">
+                      <div>
+                        <label>Date</label>
+                        <strong>{EVENT_DETAILS.date}</strong>
+                      </div>
+                      <div>
+                        <label>Time</label>
+                        <strong>{EVENT_DETAILS.time}</strong>
+                      </div>
+                      <div className="wide">
+                        <label>Venue</label>
+                        <strong>{EVENT_DETAILS.venue}</strong>
+                      </div>
+                      <div>
+                        <label>Theme</label>
+                        <strong>{EVENT_DETAILS.theme}</strong>
+                      </div>
+                      <div>
+                        <label>Dress code</label>
+                        <strong>{EVENT_DETAILS.dressCode}</strong>
+                      </div>
+                    </div>
+                    <details className="schedule-details">
+                      <summary>View program schedule</summary>
+                      <div className="table-scroll">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Time</th>
+                              <th>Activity</th>
+                              <th>In charge</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {PROGRAM_SCHEDULE.map((item) => (
+                              <tr key={`${item.time}-${item.activity}`}>
+                                <td>{item.time}</td>
+                                <td>{item.activity}</td>
+                                <td>{item.person}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </details>
+                    <div className="attendance-panel">
+                      <p className="panel-title">
+                        Please choose your attendance
+                      </p>
+                      <div className="choice-row">
+                        <button
+                          type="button"
+                          className={`choice-button attending-choice${
+                            attendanceChoice === "Attending" ? " active" : ""
+                          }`}
+                          onClick={() =>
+                            setAttendanceConfirmationChoice("Attending")
+                          }
+                          disabled={guestIsConfirmed}
+                        >
+                          COUNT ME IN
+                        </button>
+                        <button
+                          type="button"
+                          className={`choice-button${
+                            attendanceChoice === "Not Attending"
+                              ? " active"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            setAttendanceConfirmationChoice("Not Attending")
+                          }
+                          disabled={guestIsConfirmed}
+                        >
+                          I CAN'T ATTEND
+                        </button>
+                      </div>
+                      {guestIsConfirmed ? (
+                        <p className="response-note">
+                          Your response has already been recorded as{" "}
+                          <strong>{verifiedGuest.status}</strong>.
+                        </p>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      className="invitation-print-button"
+                      onClick={() => window.print()}
+                    >
+                      Print / Save as PDF
+                    </button>
+                  </div>
+                </article>
+              </section>
+              <div className="print-layout" aria-hidden="true">
+                <section className="print-page">
+                  <article className="print-card print-card-main">
+                    <div className="print-medallion" aria-hidden="true">
+                      ✦
+                    </div>
+                    <div className="print-institution-logos">
+                      <img
+                        src={`${import.meta.env.BASE_URL}abe-international-business-college.png`}
+                        alt=""
+                      />
+                      <img
+                        src={`${import.meta.env.BASE_URL}ama-education-system.png`}
+                        alt=""
+                      />
+                    </div>
+                    <p className="print-heading">
+                      ABE International School of Business and Accountancy Inc.
+                    </p>
+                    <h1>
+                      <span>Acquaintance</span>Party
+                    </h1>
+                    <p className="print-subtitle">
+                      An evening of connection &amp; celebration
+                    </p>
+                    <div className="print-divider" aria-hidden="true" />
+                    <p className="reserved">Reserved especially for</p>
+                    <h2>{verifiedGuest.name}</h2>
+                    <div className="print-detail-grid">
+                      <div>
+                        <span>Date</span>
+                        <strong>{EVENT_DETAILS.date}</strong>
+                      </div>
+                      <div>
+                        <span>Time</span>
+                        <strong>3:00 PM – 8:00 PM</strong>
+                      </div>
+                      <div className="wide">
+                        <span>Venue</span>
+                        <strong>{EVENT_DETAILS.venue}</strong>
+                      </div>
+                      <div>
+                        <span>Theme</span>
+                        <strong>{EVENT_DETAILS.theme}</strong>
+                      </div>
+                      <div>
+                        <span>Dress code</span>
+                        <strong>{EVENT_DETAILS.dressCode}</strong>
+                      </div>
+                    </div>
+                    <p className="attendance-note">
+                      {guestIsConfirmed ? (
+                        <>
+                          Your response: <strong>{verifiedGuest.status}</strong>
+                        </>
+                      ) : (
+                        <>Kindly confirm your attendance online.</>
+                      )}
+                    </p>
+                    <p className="print-message">
+                      We look forward to celebrating with you.
+                    </p>
+                    <footer className="print-footer">
+                      <span>ABE URDANETA</span>
+                      <span>GLITZ &amp; GLAM</span>
+                    </footer>
+                  </article>
+                </section>
+                <section className="print-page">
+                  <article className="print-card print-card-program">
+                    <div
+                      className="print-medallion program-medallion"
+                      aria-hidden="true"
+                    >
+                      ✦
+                    </div>
+                    <p className="print-heading">
+                      Friday, October 16, 2026 · 3:00 PM – 8:00 PM
+                    </p>
+                    <h1>Programme Flow</h1>
+                    <div className="program-spread">
+                      <div className="program-column">
+                        <p className="program-section-label">
+                          Part I · Registration
+                        </p>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Time</th>
+                              <th>Activity</th>
+                              <th>In charge</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {PROGRAM_SCHEDULE.slice(0, 1).map((item) => (
+                              <tr key={item.time}>
+                                <td>{item.time}</td>
+                                <td>{item.activity}</td>
+                                <td>{item.person}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <p className="program-section-label program-section-continuation">
+                          Part II · Programme Proper
+                        </p>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Time</th>
+                              <th>Activity</th>
+                              <th>In charge</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {PROGRAM_SCHEDULE.slice(1, 10).map((item) => (
+                              <tr key={item.time}>
+                                <td>{item.time}</td>
+                                <td>{item.activity}</td>
+                                <td>{item.person}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="program-column program-column-right">
+                        <p className="program-section-label">
+                          Part II · Programme Proper · Continued
+                        </p>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Time</th>
+                              <th>Activity</th>
+                              <th>In charge</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {PROGRAM_SCHEDULE.slice(10).map((item) => (
+                              <tr key={item.time}>
+                                <td>{item.time}</td>
+                                <td>{item.activity}</td>
+                                <td>{item.person}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <div className="mc-block">
+                          <p>Masters of Ceremonies</p>
+                          <span>Ms. Lovely Salguet</span>
+                          <span>Ms. Tiffany Ramos</span>
+                        </div>
+                        <footer className="print-footer">
+                          <span>ABE URDANETA · ACQUAINTANCE PARTY 2026</span>
+                          <span>GLITZ &amp; GLAM</span>
+                        </footer>
+                      </div>
+                    </div>
+                  </article>
+                </section>
+              </div>
+            </>
           )}
         </>
       ) : null}

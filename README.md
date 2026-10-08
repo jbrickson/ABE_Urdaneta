@@ -24,7 +24,8 @@ from the workflow's **Run workflow** button.
 ## RSVP and guest management
 
 The app includes the registered guest list, USN verification, RSVP confirmation,
-and an admin dashboard. It is a static, browser-only app: its guest list and
-admin password are part of the public website code, and RSVP/admin changes are
-saved in each browser's local storage. Changes made in one person's browser do
-not sync to other guests or devices.
+and an admin dashboard. Guests can print or save a two-page landscape invitation
+and programme after verifying their USN. It is a static, browser-only app: its
+guest list and admin password are part of the public website code, and
+RSVP/admin changes are saved in each browser's local storage. Changes made in
+one person's browser do not sync to other guests or devices.

@@ -3067,3 +3067,180 @@ td {
     font-size: clamp(1.05rem, 5vw, 1.35rem);
   }
 }
+
+@media print {
+  .print-page {
+    background: #eee8de;
+  }
+
+  .print-card {
+    border: 0;
+    background: #fffdf8;
+    box-shadow: inset 0 0 0 0.35mm #bb985d;
+    color: #34262b;
+  }
+
+  .print-card::before {
+    inset: 4mm;
+    border: 0.3mm solid rgba(151, 107, 53, 0.64);
+    background: none;
+  }
+
+  .print-card::after {
+    display: none;
+  }
+
+  .print-card-main {
+    background: linear-gradient(90deg, #fbf8f1 0 49.7%, #68152f 50.1% 100%);
+    color: #34262b;
+  }
+
+  .print-card-main > .print-institution-logos {
+    gap: 2.5mm;
+  }
+
+  .print-card-main > .print-institution-logos img {
+    width: 27mm;
+    max-height: 17mm;
+    padding: 1mm;
+    border-radius: 1mm;
+    background: #fff;
+    object-fit: contain;
+  }
+
+  .print-card-main > .print-heading,
+  .print-card-main > .print-subtitle,
+  .print-card-main > .print-message,
+  .print-card-main .print-detail-grid strong {
+    color: #fffaf4;
+  }
+
+  .print-card-main > .print-heading,
+  .print-card-main .print-detail-grid span,
+  .print-card-main > .reserved,
+  .print-card-main .attendance-note strong,
+  .print-card-main > .print-footer {
+    color: #e7c88f;
+  }
+
+  .print-card-main h1,
+  .print-card-main > h2 {
+    color: #fffaf4;
+    text-shadow: none;
+  }
+
+  .print-card-main > .reserved,
+  .print-card-main > h2 {
+    color: #68152f;
+  }
+
+  .print-card-main > h2 {
+    font-size: 2.15rem;
+  }
+
+  .print-card-main > .print-medallion {
+    border-color: rgba(231, 200, 143, 0.78);
+    background: rgba(231, 200, 143, 0.08);
+    box-shadow: none;
+    color: #e7c88f;
+    font-size: 1.7rem;
+    opacity: 0.75;
+  }
+
+  .print-card-main > .print-medallion::before,
+  .print-card-program > .program-medallion::before {
+    content: none;
+  }
+
+  .print-card-main > .print-detail-grid {
+    border-color: rgba(104, 21, 47, 0.22);
+  }
+
+  .print-card-main .print-detail-grid span {
+    color: #92703f;
+  }
+
+  .print-card-main .print-detail-grid strong {
+    color: #34262b;
+  }
+
+  .print-card-main > .attendance-note {
+    border-top-color: rgba(255, 250, 244, 0.42);
+    color: #fffaf4;
+  }
+
+  .print-card-main > .print-footer {
+    border-top-color: rgba(231, 200, 143, 0.55);
+  }
+
+  .print-card-program {
+    background: #fffdf8;
+    color: #34262b;
+  }
+
+  .print-card-program > .print-heading {
+    color: #92703f;
+  }
+
+  .print-card-program h1 {
+    color: #68152f;
+  }
+
+  .print-card-program > .program-medallion {
+    border-color: #bb985d;
+    background: #fffdf8;
+    box-shadow: none;
+    color: #68152f;
+    font-size: 1.3rem;
+  }
+
+  .print-card-program .program-section-label {
+    margin: 0 0 1.5mm;
+    color: #92703f;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .print-card-program .program-spread {
+    gap: 7mm;
+  }
+
+  .print-card-program th,
+  .print-card-program td {
+    border-color: rgba(104, 21, 47, 0.2);
+    color: #34262b;
+  }
+
+  .print-card-program th {
+    background: #68152f;
+    color: #fffaf4;
+  }
+
+  .print-card-program tbody tr:nth-child(even) {
+    background: #f8f3eb;
+  }
+
+  .print-card-program .program-column-right .mc-block {
+    border-color: rgba(104, 21, 47, 0.25);
+  }
+
+  .print-card-program .mc-block p {
+    color: #92703f;
+  }
+
+  .print-card-program .mc-block span {
+    color: #68152f;
+  }
+
+  .print-card-program .program-column-right > .print-footer {
+    border-top-color: rgba(104, 21, 47, 0.25);
+    color: #92703f;
+  }
+
+  .print-card-program tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

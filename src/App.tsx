@@ -31,6 +31,7 @@ interface Attendee {
 
 interface GuestDatabase {
   guests: GuestRecord[]
+  knownSeededUsns: string[]
   error: string
 }
 
@@ -384,29 +385,66 @@ function isGuestRecord(value: unknown): value is GuestRecord {
 
 function loadGuestDatabase(): GuestDatabase {
   const seededGuests = ATTENDEES.map(createGuestRecord)
+  const seededUsns = seededGuests.map((guest) => guest.usn)
 
   try {
     const raw = window.localStorage.getItem(DB_KEY)
 
-    if (!raw) return { guests: seededGuests, error: "" }
+    if (!raw) {
+      return { guests: seededGuests, knownSeededUsns: seededUsns, error: "" }
+    }
 
     const parsed: unknown = JSON.parse(raw)
 
-    if (!Array.isArray(parsed) || !parsed.every(isGuestRecord)) {
+    if (Array.isArray(parsed) && parsed.every(isGuestRecord)) {
+      const savedUsns = new Set(parsed.map((guest) => normalizeUsn(guest.usn)))
+      const newGuests = seededGuests.filter(
+        (guest) => !savedUsns.has(guest.usn),
+      )
+
+      return {
+        guests: [...parsed, ...newGuests],
+        knownSeededUsns: seededUsns,
+        error: "",
+      }
+    }
+
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !("guests" in parsed) ||
+      !Array.isArray(parsed.guests) ||
+      !parsed.guests.every(isGuestRecord) ||
+      !("knownSeededUsns" in parsed) ||
+      !Array.isArray(parsed.knownSeededUsns) ||
+      !parsed.knownSeededUsns.every(
+        (usn): usn is string => typeof usn === "string",
+      )
+    ) {
       throw new Error("Saved guest data is not in the expected format.")
     }
 
-    const savedUsns = new Set(parsed.map((guest) => normalizeUsn(guest.usn)))
-
+    const savedUsns = new Set(
+      parsed.knownSeededUsns.map((usn) => normalizeUsn(usn)),
+    )
     const newGuests = seededGuests.filter((guest) => !savedUsns.has(guest.usn))
 
-    return { guests: [...parsed, ...newGuests], error: "" }
+    return {
+      guests: [...parsed.guests, ...newGuests],
+      knownSeededUsns: [
+        ...new Set([
+          ...parsed.knownSeededUsns.map(normalizeUsn),
+          ...seededUsns,
+        ]),
+      ],
+      error: "",
+    }
   } catch (error) {
     console.error("Could not load saved guest data.", error)
 
     return {
       guests: seededGuests,
-
+      knownSeededUsns: seededUsns,
       error:
         "Saved guest data could not be loaded. The original guest list is shown.",
     }
@@ -451,6 +489,10 @@ export default function App() {
   const [initialDatabase] = useState(loadGuestDatabase)
 
   const [guests, setGuests] = useState(initialDatabase.guests)
+
+  const [knownSeededUsns, setKnownSeededUsns] = useState(
+    initialDatabase.knownSeededUsns,
+  )
 
   const [storageError, setStorageError] = useState(initialDatabase.error)
 
@@ -509,7 +551,14 @@ export default function App() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(DB_KEY, JSON.stringify(guests))
+      const serializedDatabase = JSON.stringify({ guests, knownSeededUsns })
+
+      if (window.localStorage.getItem(DB_KEY) === serializedDatabase) {
+        setStorageError("")
+        return
+      }
+
+      window.localStorage.setItem(DB_KEY, serializedDatabase)
 
       setStorageError("")
     } catch (error) {
@@ -517,7 +566,25 @@ export default function App() {
 
       setStorageError("Guest data could not be saved in this browser.")
     }
-  }, [guests])
+  }, [guests, knownSeededUsns])
+
+  const refreshGuestDatabase = () => {
+    const database = loadGuestDatabase()
+
+    setGuests(database.guests)
+    setKnownSeededUsns(database.knownSeededUsns)
+    setStorageError(database.error)
+  }
+
+  useEffect(() => {
+    const syncGuestDatabase = (event: StorageEvent) => {
+      if (event.key === DB_KEY || event.key === null) refreshGuestDatabase()
+    }
+
+    window.addEventListener("storage", syncGuestDatabase)
+
+    return () => window.removeEventListener("storage", syncGuestDatabase)
+  }, [])
 
   useEffect(() => {
     if (!confirmationModal && !attendanceConfirmationChoice) return
@@ -774,14 +841,10 @@ export default function App() {
       return
     }
 
-    const exists = guests.some(
-      (guest) =>
-        normalizeName(guest.name) === normalizeName(name) ||
-        normalizeUsn(guest.usn) === usn,
-    )
+    const exists = guests.some((guest) => normalizeUsn(guest.usn) === usn)
 
     if (exists) {
-      setGuestFormError("A guest with that name or USN is already registered.")
+      setGuestFormError("A guest with that USN is already registered.")
 
       return
     }
@@ -1503,7 +1566,7 @@ export default function App() {
               <button
                 type="button"
                 className="secondary-button"
-                onClick={() => setGuests([...guests])}
+                onClick={refreshGuestDatabase}
               >
                 Refresh
               </button>

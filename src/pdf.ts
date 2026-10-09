@@ -97,16 +97,7 @@ export async function downloadInvitationPdf(filename: string) {
       pdf.addImage(canvas, "PNG", 0, 0, 297, 210, undefined, "FAST")
     }
 
-    const pdfBlob = pdf.output("blob")
-    const pdfUrl = URL.createObjectURL(pdfBlob)
-    const downloadLink = document.createElement("a")
-    downloadLink.href = pdfUrl
-    downloadLink.download = filename
-    downloadLink.hidden = true
-    document.body.append(downloadLink)
-    downloadLink.click()
-    downloadLink.remove()
-    window.setTimeout(() => URL.revokeObjectURL(pdfUrl), 60_000)
+    pdf.save(filename)
     await new Promise<void>((resolve) => window.setTimeout(resolve, 0))
   } finally {
     if (originalLayoutStyle === null) {

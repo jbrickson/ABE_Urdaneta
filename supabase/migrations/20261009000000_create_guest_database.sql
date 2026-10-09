@@ -16,7 +16,7 @@ revoke all on table public.guests from anon, authenticated;
 grant all on table public.guests to service_role;
 
 insert into public.guests (usn, name) values
-  ('01350062', 'Dr. Jeannie J. Braun'),
+  ('01350062', 'Dr. Jeannie J. Bruan'),
   ('12183021', 'Sir Janbrickson C. Parco'),
   ('12183024', 'Sir Terrence Spenzer L. Pascua'),
   ('12183028', 'Ma''am Lovely Anne Salguet'),

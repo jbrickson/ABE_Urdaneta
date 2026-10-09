@@ -7,6 +7,17 @@ interface GuestRow {
   confirmed_at: string | null
 }
 
+interface DenoRuntime {
+  env: {
+    get(name: string): string | undefined
+  }
+  serve(handler: (request: Request) => Response | Promise<Response>): void
+}
+
+const denoRuntime = (globalThis as typeof globalThis & {
+  Deno: DenoRuntime
+}).Deno
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "apikey, authorization, content-type",
@@ -173,7 +184,7 @@ async function queryGuests(
   return result
 }
 
-Deno.serve(async (request) => {
+denoRuntime.serve(async (request: Request) => {
   if (request.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
@@ -189,8 +200,8 @@ Deno.serve(async (request) => {
       return respond({ error: "An action is required." }, 400)
     }
 
-    const adminPassword = Deno.env.get("ADMIN_PASSWORD")
-    const tokenSecret = Deno.env.get("ADMIN_TOKEN_SECRET")
+    const adminPassword = denoRuntime.env.get("ADMIN_PASSWORD")
+    const tokenSecret = denoRuntime.env.get("ADMIN_TOKEN_SECRET")
     if (body.action === "admin:login") {
       if (!adminPassword || !tokenSecret) {
         return respond(
@@ -217,8 +228,8 @@ Deno.serve(async (request) => {
       )
     }
 
-    const url = Deno.env.get("SUPABASE_URL")
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+    const url = denoRuntime.env.get("SUPABASE_URL")
+    const serviceKey = denoRuntime.env.get("SUPABASE_SERVICE_ROLE_KEY")
     if (!url || !serviceKey) {
       return respond({ error: "The attendance database is not configured." }, 503)
     }

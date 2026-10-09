@@ -62,7 +62,7 @@ const PROGRAM_SCHEDULE = [
   {
     time: "4:40 PM – 4:45 PM",
     activity: "Inaugural Speech of the SSC",
-    person: "Presidents name",
+    person: "Raymond Joey Calaunan",
   },
   {
     time: "4:45 PM – 4:50 PM",
@@ -113,7 +113,7 @@ const PROGRAM_SCHEDULE = [
   {
     time: "7:00 PM – 7:15 PM",
     activity:
-      "Announcement and Recognition of Winners:\nMr. and Miss Acquaintance\nDancing King and Queen\nMr. and Miss Congeniality\nCrowd’s Darling",
+      "Announcement and Recognition of Winners:\nMr. and Miss Acquaintance\nDancing King and Queen\nMr. and Miss Congeniality\nCrowd's Darling",
     person: "Emcees",
   },
   {
@@ -1091,7 +1091,7 @@ export default function App() {
                     <div className="program-spread">
                       <div className="program-column">
                         <p className="program-section-label">
-                          Part I · Registration &amp; Programme Proper
+                          Part I · Registration
                         </p>
                         <table>
                           <thead>
@@ -1102,7 +1102,28 @@ export default function App() {
                             </tr>
                           </thead>
                           <tbody>
-                            {PROGRAM_SCHEDULE.slice(0, 10).map((item) => (
+                            {PROGRAM_SCHEDULE.slice(0, 1).map((item) => (
+                              <tr key={item.time}>
+                                <td>{item.time}</td>
+                                <td>{item.activity}</td>
+                                <td>{item.person}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <p className="program-section-label program-section-continuation">
+                          Part II · Programme Proper
+                        </p>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Time</th>
+                              <th>Activity</th>
+                              <th>In charge</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {PROGRAM_SCHEDULE.slice(1, 10).map((item) => (
                               <tr key={item.time}>
                                 <td>{item.time}</td>
                                 <td>{item.activity}</td>
@@ -1125,7 +1146,7 @@ export default function App() {
                             </tr>
                           </thead>
                           <tbody>
-                            {PROGRAM_SCHEDULE.slice(10, 20).map((item) => (
+                            {PROGRAM_SCHEDULE.slice(10).map((item) => (
                               <tr key={item.time}>
                                 <td>{item.time}</td>
                                 <td>{item.activity}</td>
@@ -1413,7 +1434,7 @@ export default function App() {
                 className="secondary-button"
                 onClick={() => void handleSavePdf()}
               >
-                Save PDF to Print
+                Save Invitation PDF
               </button>
               <button
                 type="button"

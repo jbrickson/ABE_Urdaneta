@@ -85,14 +85,37 @@ export async function downloadInvitationPdf(filename: string) {
     })
 
     for (const [index, page] of pages.entries()) {
-      const canvas = await html2canvas(page, {
+      const canvasOptions = {
         scale: 2,
         backgroundColor: "#e9e0d3",
         useCORS: true,
         windowWidth: 1200,
         windowHeight: 850,
         logging: false,
-      })
+      }
+      let canvas: HTMLCanvasElement
+
+      try {
+        canvas = await html2canvas(page, canvasOptions)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : ""
+        if (
+          !message.includes("createPattern") ||
+          !message.includes("canvas element") ||
+          !message.includes("width or height of 0")
+        ) {
+          throw error
+        }
+
+        console.warn(
+          "Retrying invitation PDF rendering with the alternate canvas renderer.",
+          error,
+        )
+        canvas = await html2canvas(page, {
+          ...canvasOptions,
+          foreignObjectRendering: true,
+        })
+      }
 
       if (index > 0) pdf.addPage("a4", "landscape")
       pdf.addImage(canvas, "PNG", 0, 0, 297, 210, undefined, "FAST")

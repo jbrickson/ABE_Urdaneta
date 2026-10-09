@@ -13,6 +13,16 @@ type AdminFilter = "All" | GuestStatus
 
 const EVENT_STARTS_AT = new Date(2026, 9, 16, 15, 0, 0).getTime()
 
+let pdfExporter: Promise<typeof import("./pdf")> | undefined
+
+function loadPdfExporter() {
+  pdfExporter ??= import("./pdf").catch((error: unknown) => {
+    pdfExporter = undefined
+    throw error
+  })
+  return pdfExporter
+}
+
 const EVENT_DETAILS = {
   title: "Acquaintance Party",
 
@@ -29,89 +39,103 @@ const EVENT_DETAILS = {
 
 const PROGRAM_SCHEDULE = [
   {
-    time: "3:00 PM – 4:00 PM",
-    activity: "Registration, attendance & photo booth",
-    person: "SSC Officers / Advisers",
+    time: "3:00 PM – 3:30 PM",
+    activity: "Registration/Attendance and Photo Booth",
+    person: "Supreme Student Council & Advisers",
   },
-  { time: "4:00 – 4:10 PM", activity: "Prayer", person: "AVP" },
+  { time: "3:30 – 3:40 PM", activity: "Opening Prayer", person: "AVP" },
   {
-    time: "4:10 – 4:25 PM",
-    activity: "Welcome remarks",
-    person: "Dr. Jeannie J. Braun, LLB",
-  },
-  {
-    time: "4:25 – 4:35 PM",
-    activity: "Entrance of faculties and staff",
-    person: "SSC Officers",
+    time: "3:40 – 3:55 PM",
+    activity: "Welcome Remarks",
+    person: "Dr. Jeannie J. Bruan, LLB",
   },
   {
-    time: "4:35 – 4:40 PM",
-    activity: "Presentation of SSC Officers",
-    person: "SSC Advisers — Ms. Lovely Salguet & Mr. Mark Emarson Ayap",
+    time: "3:55 – 4:15 PM",
+    activity:
+      "Grand Entrance and Introduction of the School Director, College Dean, Program Head, SHS Academic Coordinator, Faculty Members, and Administrative Staff",
+    person: "Supreme Student Council Officers",
+  },
+  {
+    time: "4:15 – 4:25 PM",
+    activity:
+      "Mass Presentation and Induction of Department Officers for School Year 2026-2027",
+    person:
+      "Supreme Student Adviser: Sir Mark Emarson Ayap; Dr. Jeannie J. Bruan, LLB",
+  },
+  {
+    time: "4:25 – 4:40 PM",
+    activity:
+      "Presentation and Induction of Supreme Student Council Officers for School Year 2026-2027",
+    person:
+      "Supreme Student Adviser: Ms. Lovely Salguet; Dr. Jeannie J. Bruan, LLB",
   },
   {
     time: "4:40 – 4:45 PM",
-    activity: "Induction of SSC Officers",
-    person: "Dr. Jeannie J. Braun, LLB",
+    activity: "Inaugural Speech of the SSC",
+    person: "President's name",
   },
   {
-    time: "4:45 – 4:55 PM",
-    activity: "Intermission dance number",
-    person: "SSC Officers",
+    time: "4:45 – 4:50 PM",
+    activity: "Intermission Dance Performance",
+    person: "Supreme Student Council Officers",
   },
   {
-    time: "4:55 – 5:05 PM",
-    activity: "A message from the Dean",
-    person: "Dean Terrence Spenzer Pascua, LPT, MBA",
+    time: "4:50 – 5:00 PM",
+    activity: "Message from the College Dean",
+    person: "Mr. Terrence Spenzer Pascua, LPT, MBA, CHRA",
   },
   {
-    time: "5:05 – 5:15 PM",
-    activity: "Department presentation",
-    person: "BSIT / CS",
+    time: "5:00 – 5:10 PM",
+    activity: "Department Presentation",
+    person: "BSA and BSBA",
   },
   {
-    time: "5:15 – 5:25 PM",
-    activity: "Department presentation",
-    person: "BSHM — 2nd Year",
+    time: "5:10 – 5:20 PM",
+    activity: "Department Presentation",
+    person: "BSHM - Second Year",
   },
   {
-    time: "5:25 – 5:45 PM",
-    activity: "Presentation of Mr. and Miss Acquaintance candidates",
+    time: "5:20 – 5:40 PM",
+    activity: "Presentation of Mr. and Miss Acquaintance Candidates",
     person: "Emcees",
   },
   {
-    time: "5:45 – 5:55 PM",
-    activity: "Department presentation",
-    person: "BSA / BSBA",
+    time: "5:40 – 5:50 PM",
+    activity: "Department Presentation",
+    person: "BSIT and BSCS",
   },
   {
-    time: "5:55 – 6:15 PM",
+    time: "5:50 – 6:10 PM",
     activity: "Search for Dancing King and Queen",
-    person: "Emcees",
+    person: "All Participants",
   },
   {
-    time: "6:15 – 6:25 PM",
-    activity: "Department presentation",
-    person: "BSHM — 1st Year",
+    time: "6:10 – 6:20 PM",
+    activity: "Department Presentation",
+    person: "BSHM - First Year",
   },
   {
-    time: "6:25 – 6:35 PM",
-    activity: "Department presentation",
+    time: "6:20 – 6:30 PM",
+    activity: "Department Presentation",
     person: "Senior High School",
   },
-  { time: "6:35 – 7:00 PM", activity: "Dinner", person: "—" },
+  { time: "6:30 – 7:00 PM", activity: "Dinner", person: "" },
   {
     time: "7:00 – 7:15 PM",
     activity:
-      "Announcement of Mr. and Miss Acquaintance and Dancing King and Queen",
+      "Announcement and Recognition of Winners: Mr. and Miss Acquaintance; Dancing King and Queen; Mr. and Miss Congeniality; Crowd's Darling",
     person: "Emcees",
   },
   {
     time: "7:15 – 7:20 PM",
-    activity: "Closing remarks",
-    person: "Ms. Tiffany B. Ramos",
+    activity: "Closing Remarks",
+    person: "Ms. Tiffany B. Ramos, MBA, CHRA",
   },
-  { time: "7:20 – 8:00 PM", activity: "Dance, Dance, Dance", person: "—" },
+  {
+    time: "7:20 – 8:00 PM",
+    activity: "Dance, Dance, Dance: Open Dance Floor",
+    person: "All Participants",
+  },
 ]
 
 function normalizeName(value: string) {
@@ -373,6 +397,9 @@ export default function App() {
         setAttendanceChoice(
           result.guest.status === "Pending" ? null : result.guest.status,
         )
+        void loadPdfExporter().catch((error: unknown) => {
+          console.error("Could not preload the invitation PDF generator.", error)
+        })
       } catch (error) {
         console.error("Could not verify guest USN.", error)
         setVerificationError(
@@ -597,7 +624,7 @@ export default function App() {
     setPdfSuccess("")
 
     try {
-      const { downloadInvitationPdf } = await import("./pdf")
+      const { downloadInvitationPdf } = await loadPdfExporter()
       await downloadInvitationPdf(
         `acquaintance-party-invitation-${normalizeUsn(verifiedGuest?.usn ?? "guest")}.pdf`,
       )
@@ -1439,9 +1466,9 @@ export default function App() {
               <button
                 type="button"
                 className="secondary-button"
-                onClick={() => window.print()}
+                onClick={() => void handleSavePdf()}
               >
-                Print Invitation
+                Save Invitation PDF
               </button>
               <button
                 type="button"

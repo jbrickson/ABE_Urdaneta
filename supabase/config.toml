@@ -1,0 +1,4 @@
+project_id = "abe-urdaneta"
+
+[functions.guest-database]
+verify_jwt = false

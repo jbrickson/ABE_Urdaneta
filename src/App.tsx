@@ -1,43 +1,15 @@
 import { FormEvent, useEffect, useMemo, useState } from "react"
 
 import * as XLSX from "xlsx"
-
-type GuestStatus = "Pending" | "Attending" | "Not Attending"
-
-type AttendanceChoice = Exclude<GuestStatus, "Pending">
+import {
+  databaseRequest,
+  isDatabaseConfigured,
+  type AttendanceChoice,
+  type GuestRecord,
+  type GuestStatus,
+} from "./database"
 
 type AdminFilter = "All" | GuestStatus
-
-interface GuestRecord {
-  id: string
-
-  name: string
-
-  usn: string
-
-  status: GuestStatus
-
-  confirmationDate: string | null
-
-  confirmationTime: string | null
-
-  confirmedAt: string | null
-}
-
-interface Attendee {
-  usn: string
-  name: string
-}
-
-interface GuestDatabase {
-  guests: GuestRecord[]
-  knownSeededUsns: string[]
-  error: string
-}
-
-const DB_KEY = "acquaintance-party-db-v2"
-
-const ADMIN_PASSWORD = "emar2026"
 
 const EVENT_STARTS_AT = new Date(2026, 9, 16, 15, 0, 0).getTime()
 
@@ -142,331 +114,12 @@ const PROGRAM_SCHEDULE = [
   { time: "7:20 – 8:00 PM", activity: "Dance, Dance, Dance", person: "—" },
 ]
 
-const ATTENDEES: Attendee[] = [
-  { usn: "01350062", name: "Dr. Jeannie J. Braun" },
-
-  { usn: "12183021", name: "Sir Janbrickson C. Parco" },
-
-  { usn: "12183024", name: "Sir Terrence Spenzer L. Pascua" },
-
-  { usn: "12183028", name: "Ma'am Lovely Anne Salguet" },
-
-  { usn: "12183035", name: "Sir Mark Emarson F. Ayap" },
-
-  { usn: "12183014", name: "Ma'am Anne Castro" },
-
-  { usn: "12183016", name: "Reuven Glenn B. Carillo" },
-
-  { usn: "12183019", name: "Ma. Luisa T. Pajarillo" },
-
-  { usn: "12183037", name: "Ma'am Tiffany Ramos" },
-
-  { usn: "12183030", name: "Renante L. Valdez" },
-
-  { usn: "12183033", name: "Angelica Mae D. Arzadon" },
-
-  { usn: "25001920910", name: "Zipagan, Juan Rafael Palad" },
-
-  { usn: "26000351510", name: "Sapasap, Rhian Joy Bautista" },
-
-  { usn: "25000839010", name: "Fernandez, Aira Faye Perez" },
-
-  { usn: "25001711310", name: "Bravo, Isaiah De Leon" },
-
-  { usn: "26001052910", name: "Mendoza, Raymart Aduan" },
-
-  { usn: "25000614110", name: "Estonilo, Valerie Jen" },
-
-  { usn: "25000653410", name: "Jucutan, Cristina Cassandra Faye Quitevez" },
-
-  { usn: "26000651410", name: "Aguilar, John Paul" },
-
-  { usn: "26001391010", name: "Villanueva, Prince Nazzer" },
-
-  { usn: "25000750510", name: "Caldito, Quennie Rich Borlado" },
-
-  { usn: "25001366110", name: "Bautista, Louise Redoble" },
-
-  { usn: "24001380310", name: "Andrada, Ena Jemaica Tarinay" },
-
-  { usn: "25000653110", name: "Romo, Prescious Joy Pajar" },
-
-  { usn: "26000818210", name: "Mercado, Ian Mondala" },
-
-  { usn: "24000309110", name: "Adaliga, Francis Andrei Lomboy" },
-
-  { usn: "24000309210", name: "Ranillo, Faye Angelie Lomboy" },
-
-  { usn: "26000362710", name: "Sacdalan, Camille Garcia" },
-
-  { usn: "25000997610", name: "Pagaduan Jr., Justino Gamurot" },
-
-  { usn: "25001065610", name: "Visico, Vince Kingsley Docosin" },
-
-  { usn: "25000817610", name: "Sagum, Matt Gedeon Aquino" },
-
-  { usn: "25000704610", name: "Cablayan, Raymon Legaspi" },
-
-  { usn: "25000949910", name: "Gagabuan, Febelyn Mendoza" },
-
-  { usn: "24001785310", name: "Ordonio, Princess Joy Sijalbo" },
-
-  { usn: "24000868310", name: "Leprozo, John Benedict Agacita" },
-
-  { usn: "25000603510", name: "Nabong, Joyce Ann Cabatan" },
-
-  { usn: "25001057510", name: "Arimas, Mark Anthony Materum" },
-
-  { usn: "24000156110", name: "Visitacion, Jasmine Bucasas" },
-
-  { usn: "25002099610", name: "Cablayan, Joshua Legaspi" },
-
-  { usn: "25000572010", name: "Velasco, Devine Aquino" },
-
-  { usn: "25000624210", name: "Castillo, Rafael Alexander Espiritu" },
-
-  { usn: "26000931710", name: "Muan, Mary Cris Ibay" },
-
-  { usn: "25000620110", name: "Labiano, Kimberly Serra" },
-
-  { usn: "25000619610", name: "Valdez, Elizabeth Joyce Micua" },
-
-  { usn: "19002372600", name: "Molina, John Rey De Vera" },
-
-  { usn: "25001484910", name: "De guzman, Claribelle Pacli" },
-
-  { usn: "25001455710", name: "Pacli, Maria Claire Casuga" },
-
-  { usn: "25001490510", name: "Malapit, Cherry Pacli" },
-
-  { usn: "24000798610", name: "Montalbo, Cathlene Jane Bala" },
-
-  { usn: "23003166310", name: "Bacolod, Kylle Luz Ocharan" },
-
-  { usn: "24001204510", name: "Verde, Karl Vincent Singson" },
-
-  { usn: "24000805210", name: "Ramos jr., Sherwin Garcia" },
-
-  { usn: "25001036610", name: "Lugue, Laython Johnsen M" },
-
-  { usn: "25000594210", name: "Baltazar, John Ford Deguzman" },
-
-  { usn: "26000597210", name: "Dingle, Trisha Lyn Dela cruz" },
-
-  { usn: "25000798810", name: "Pariscal, Cyril Mae Alvarez" },
-
-  { usn: "24000106510", name: "Malapitan, Christopher John Castillo" },
-
-  { usn: "25000799410", name: "Dela cruz, Juvielyn Alvarez" },
-
-  { usn: "25001166510", name: "Sunga, Ana Nina" },
-
-  { usn: "26001267610", name: "Mendijar, Rica Stephanie" },
-
-  { usn: "25001085210", name: "Bolaton, Jhazelle Zyrha Locquaio" },
-
-  { usn: "25001263010", name: "Collado, Rosamiah Marquez" },
-
-  { usn: "24000307610", name: "Sanchez, Eloisa Mina" },
-
-  { usn: "25000997810", name: "Bangabanga, Markniel Aban" },
-
-  { usn: "25001632610", name: "Al-gharaibeh, Tamara Villasor" },
-
-  { usn: "26000939810", name: "Echon, Eric Namuca" },
-
-  { usn: "24000805610", name: "Reyes, Mark Jb Paguyo" },
-
-  { usn: "26000716410", name: "Dejito, Jorchiel Mae" },
-
-  { usn: "26000414310", name: "Natan, Mia Gyle Palma" },
-
-  { usn: "24000169210", name: "Esteban, John Edward Aboc" },
-
-  { usn: "25000888210", name: "Esteban, Zekiah Joy Aboc" },
-
-  { usn: "26000826110", name: "Olpindo, Rysa" },
-
-  { usn: "24001519710", name: "Capitan, Maria Concepcion" },
-
-  { usn: "26000762910", name: "Cañaveral, Vyenali Cris" },
-
-  { usn: "26000754410", name: "Villanueva, Kristine Ann" },
-
-  { usn: "26001003710", name: "Lapitan, Jea Margo Montero" },
-
-  { usn: "26001131410", name: "Laluan, Yhanniz Francey Solis" },
-
-  { usn: "23003150310", name: "Mangrobang, Lareyn Belle Itliong" },
-
-  { usn: "25001201810", name: "Dulatre, Sarah Cacala" },
-
-  { usn: "25000817710", name: "Gombio, Austine Nichole Palaganas" },
-
-  { usn: "26001057110", name: "Espiritu, Rens Gabriel Duca" },
-
-  { usn: "26000793910", name: "Darapisa, Jannery" },
-
-  { usn: "26000713910", name: "Pascua, Alina" },
-
-  { usn: "26000755810", name: "Serra, Jean Claude" },
-
-  { usn: "26000627710", name: "Tabunda, Ashlie" },
-
-  { usn: "25002039410", name: "Oclima, Alexa Wynne Cave" },
-
-  { usn: "26000296810", name: "Ladio, Jireh Sabare" },
-
-  { usn: "26000765610", name: "Flores, Miracle" },
-
-  { usn: "26000200910", name: "Cendaña, Vin Lester Parocha" },
-
-  { usn: "25000609310", name: "Valdez, James Velasco" },
-
-  { usn: "25000609410", name: "Padilla, Luiz Angelo Basada" },
-
-  { usn: "25000843910", name: "Gapuz, Eileen Joy Nonog" },
-
-  { usn: "25000454610", name: "Sernadilla, Brix Aziken Mendoza" },
-
-  { usn: "25000707710", name: "Calub, Edilberto Sagun" },
-
-  { usn: "25000838510", name: "Mercado, Darlene Joyce Quidit" },
-
-  { usn: "26000587710", name: "Dacalcap, Althea Bartolome" },
-
-  { usn: "25000651410", name: "Lagahit, Kimberly Canin" },
-
-  { usn: "26000773710", name: "Escalona, Aelyza" },
-
-  { usn: "26000774010", name: "Subai, Remilla Rose Anne Bañaria" },
-]
-
 function normalizeName(value: string) {
   return value.trim().replace(/\s+/g, " ").toLowerCase()
 }
 
 function normalizeUsn(value: string) {
   return value.trim().replace(/\s+/g, "").toUpperCase()
-}
-
-function createGuestRecord(attendee: Attendee, index: number): GuestRecord {
-  return {
-    id: `${normalizeUsn(attendee.usn)}-${index}`,
-
-    name: attendee.name.trim(),
-
-    usn: normalizeUsn(attendee.usn),
-
-    status: "Pending",
-
-    confirmationDate: null,
-
-    confirmationTime: null,
-
-    confirmedAt: null,
-  }
-}
-
-function isGuestRecord(value: unknown): value is GuestRecord {
-  if (!value || typeof value !== "object") return false
-
-  const guest = value as Partial<GuestRecord>
-
-  return (
-    typeof guest.id === "string" &&
-    typeof guest.name === "string" &&
-    typeof guest.usn === "string" &&
-    (guest.status === "Pending" ||
-      guest.status === "Attending" ||
-      guest.status === "Not Attending")
-  )
-}
-
-function loadGuestDatabase(): GuestDatabase {
-  const seededGuests = ATTENDEES.map(createGuestRecord)
-  const seededUsns = seededGuests.map((guest) => guest.usn)
-
-  try {
-    const raw = window.localStorage.getItem(DB_KEY)
-
-    if (!raw) {
-      return { guests: seededGuests, knownSeededUsns: seededUsns, error: "" }
-    }
-
-    const parsed: unknown = JSON.parse(raw)
-
-    if (Array.isArray(parsed) && parsed.every(isGuestRecord)) {
-      const savedUsns = new Set(parsed.map((guest) => normalizeUsn(guest.usn)))
-      const newGuests = seededGuests.filter(
-        (guest) => !savedUsns.has(guest.usn),
-      )
-
-      return {
-        guests: [...parsed, ...newGuests],
-        knownSeededUsns: seededUsns,
-        error: "",
-      }
-    }
-
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      !("guests" in parsed) ||
-      !Array.isArray(parsed.guests) ||
-      !parsed.guests.every(isGuestRecord) ||
-      !("knownSeededUsns" in parsed) ||
-      !Array.isArray(parsed.knownSeededUsns) ||
-      !parsed.knownSeededUsns.every(
-        (usn): usn is string => typeof usn === "string",
-      )
-    ) {
-      throw new Error("Saved guest data is not in the expected format.")
-    }
-
-    const savedUsns = new Set(
-      parsed.knownSeededUsns.map((usn) => normalizeUsn(usn)),
-    )
-    const newGuests = seededGuests.filter((guest) => !savedUsns.has(guest.usn))
-
-    return {
-      guests: [...parsed.guests, ...newGuests],
-      knownSeededUsns: [
-        ...new Set([
-          ...parsed.knownSeededUsns.map(normalizeUsn),
-          ...seededUsns,
-        ]),
-      ],
-      error: "",
-    }
-  } catch (error) {
-    console.error("Could not load saved guest data.", error)
-
-    return {
-      guests: seededGuests,
-      knownSeededUsns: seededUsns,
-      error:
-        "Saved guest data could not be loaded. The original guest list is shown.",
-    }
-  }
-}
-
-function formatDate(date: Date) {
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-
-    day: "numeric",
-
-    year: "numeric",
-  })
-}
-
-function formatTime(date: Date) {
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-
-    minute: "2-digit",
-  })
 }
 
 function buildGuestRow(guest: GuestRecord, index: number) {
@@ -486,15 +139,21 @@ function buildGuestRow(guest: GuestRecord, index: number) {
 }
 
 export default function App() {
-  const [initialDatabase] = useState(loadGuestDatabase)
+  const [guests, setGuests] = useState<GuestRecord[]>([])
 
-  const [guests, setGuests] = useState(initialDatabase.guests)
-
-  const [knownSeededUsns, setKnownSeededUsns] = useState(
-    initialDatabase.knownSeededUsns,
+  const [databaseError, setDatabaseError] = useState(
+    isDatabaseConfigured
+      ? ""
+      : "The shared attendance database is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to enable guest verification.",
   )
 
-  const [storageError, setStorageError] = useState(initialDatabase.error)
+  const [adminToken, setAdminToken] = useState("")
+
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+
+  const [pdfError, setPdfError] = useState("")
+
+  const [pdfSuccess, setPdfSuccess] = useState("")
 
   const [countdownNow, setCountdownNow] = useState(() => Date.now())
 
@@ -528,6 +187,14 @@ export default function App() {
 
   const [isVerifyingUsn, setIsVerifyingUsn] = useState(false)
 
+  const [isSavingAttendance, setIsSavingAttendance] = useState(false)
+
+  const [isRefreshingGuests, setIsRefreshingGuests] = useState(false)
+
+  const [isAddingGuest, setIsAddingGuest] = useState(false)
+
+  const [updatingGuestId, setUpdatingGuestId] = useState<string | null>(null)
+
   const [adminSearch, setAdminSearch] = useState("")
 
   const [adminFilter, setAdminFilter] = useState<AdminFilter>("All")
@@ -540,6 +207,29 @@ export default function App() {
 
   const [guestFormError, setGuestFormError] = useState("")
 
+  const refreshGuestDatabase = async (showLoading = true) => {
+    if (!adminToken) return
+    if (showLoading) setIsRefreshingGuests(true)
+
+    try {
+      const result = await databaseRequest<{ guests: GuestRecord[] }>(
+        { action: "admin:list" },
+        adminToken,
+      )
+      setGuests(result.guests)
+      setDatabaseError("")
+    } catch (error) {
+      console.error("Could not refresh the guest database.", error)
+      setDatabaseError(
+        error instanceof Error
+          ? error.message
+          : "Guest data could not be retrieved. Please try again.",
+      )
+    } finally {
+      if (showLoading) setIsRefreshingGuests(false)
+    }
+  }
+
   useEffect(() => {
     const intervalId = window.setInterval(
       () => setCountdownNow(Date.now()),
@@ -550,41 +240,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    try {
-      const serializedDatabase = JSON.stringify({ guests, knownSeededUsns })
+    if (!isAdminAuthenticated || !adminToken || activeView !== "admin") return
 
-      if (window.localStorage.getItem(DB_KEY) === serializedDatabase) {
-        setStorageError("")
-        return
-      }
+    const intervalId = window.setInterval(() => {
+      void refreshGuestDatabase(false)
+    }, 15000)
 
-      window.localStorage.setItem(DB_KEY, serializedDatabase)
-
-      setStorageError("")
-    } catch (error) {
-      console.error("Could not save guest data.", error)
-
-      setStorageError("Guest data could not be saved in this browser.")
-    }
-  }, [guests, knownSeededUsns])
-
-  const refreshGuestDatabase = () => {
-    const database = loadGuestDatabase()
-
-    setGuests(database.guests)
-    setKnownSeededUsns(database.knownSeededUsns)
-    setStorageError(database.error)
-  }
-
-  useEffect(() => {
-    const syncGuestDatabase = (event: StorageEvent) => {
-      if (event.key === DB_KEY || event.key === null) refreshGuestDatabase()
-    }
-
-    window.addEventListener("storage", syncGuestDatabase)
-
-    return () => window.removeEventListener("storage", syncGuestDatabase)
-  }, [])
+    return () => window.clearInterval(intervalId)
+  }, [activeView, adminToken, isAdminAuthenticated])
 
   useEffect(() => {
     if (!confirmationModal && !attendanceConfirmationChoice) return
@@ -700,29 +363,31 @@ export default function App() {
 
     setIsVerifyingUsn(true)
 
-    window.setTimeout(() => {
-      const guest = guests.find(
-        (record) => normalizeUsn(record.usn) === normalizeUsn(guestUsnInput),
-      )
-
-      if (!guest) {
-        setVerificationError("No Guest Record Found.")
-
+    void (async () => {
+      try {
+        const result = await databaseRequest<{ guest: GuestRecord }>({
+          action: "guest:verify",
+          usn: normalizeUsn(guestUsnInput),
+        })
+        setVerifiedGuest(result.guest)
+        setAttendanceChoice(
+          result.guest.status === "Pending" ? null : result.guest.status,
+        )
+      } catch (error) {
+        console.error("Could not verify guest USN.", error)
+        setVerificationError(
+          error instanceof Error ? error.message : "Guest verification failed.",
+        )
         setVerifiedGuest(null)
-
         setAttendanceChoice(null)
-      } else {
-        setVerifiedGuest(guest)
-
-        setAttendanceChoice(guest.status === "Pending" ? null : guest.status)
+      } finally {
+        setIsVerifyingUsn(false)
       }
-
-      setIsVerifyingUsn(false)
-    }, 350)
+    })()
   }
 
-  const handleConfirmAttendance = (choice: AttendanceChoice | null) => {
-    if (!verifiedGuest || !choice) return
+  const handleConfirmAttendance = async (choice: AttendanceChoice | null) => {
+    if (!verifiedGuest || !choice || isSavingAttendance) return
 
     if (verifiedGuest.status !== "Pending") {
       setVerificationError("This guest has already submitted a response.")
@@ -730,31 +395,55 @@ export default function App() {
       return
     }
 
-    const now = new Date()
+    setIsSavingAttendance(true)
+    setVerificationError("")
 
-    const updatedGuest: GuestRecord = {
-      ...verifiedGuest,
-
-      status: choice,
-
-      confirmationDate: formatDate(now),
-
-      confirmationTime: formatTime(now),
-
-      confirmedAt: now.toISOString(),
+    try {
+      const result = await databaseRequest<{ guest: GuestRecord }>({
+        action: "guest:confirm",
+        usn: verifiedGuest.usn,
+        status: choice,
+      })
+      const updatedGuest = result.guest
+      setVerifiedGuest(updatedGuest)
+      setAttendanceChoice(choice)
+      setGuests((current) =>
+        current.map((guest) =>
+          guest.id === updatedGuest.id ? updatedGuest : guest,
+        ),
+      )
+      setConfirmationModal({ guest: updatedGuest.name, status: choice })
+    } catch (error) {
+      console.error("Could not save attendance confirmation.", error)
+      if (
+        error instanceof Error &&
+        error.message === "This guest has already submitted a response."
+      ) {
+        try {
+          const latest = await databaseRequest<{ guest: GuestRecord }>({
+            action: "guest:verify",
+            usn: verifiedGuest.usn,
+          })
+          setVerifiedGuest(latest.guest)
+          setAttendanceChoice(
+            latest.guest.status === "Pending" ? null : latest.guest.status,
+          )
+          setVerificationError(
+            `This guest has already submitted a response as ${latest.guest.status}.`,
+          )
+          return
+        } catch (refreshError) {
+          console.error("Could not retrieve the existing guest response.", refreshError)
+        }
+      }
+      setVerificationError(
+        error instanceof Error
+          ? error.message
+          : "Your response could not be saved. Please try again.",
+      )
+    } finally {
+      setIsSavingAttendance(false)
     }
-
-    setGuests((current) =>
-      current.map((guest) =>
-        guest.id === verifiedGuest.id ? updatedGuest : guest,
-      ),
-    )
-
-    setVerifiedGuest(updatedGuest)
-
-    setAttendanceChoice(choice)
-
-    setConfirmationModal({ guest: updatedGuest.name, status: choice })
   }
 
   const handleAdminLogin = (event: FormEvent<HTMLFormElement>) => {
@@ -766,60 +455,69 @@ export default function App() {
 
     setIsLoggingIn(true)
 
-    window.setTimeout(() => {
-      setIsLoggingIn(false)
-
-      if (adminPassword === ADMIN_PASSWORD) {
+    void (async () => {
+      try {
+        const login = await databaseRequest<{ token: string }>({
+          action: "admin:login",
+          password: adminPassword,
+        })
+        const database = await databaseRequest<{ guests: GuestRecord[] }>(
+          { action: "admin:list" },
+          login.token,
+        )
+        setAdminToken(login.token)
+        setGuests(database.guests)
+        setDatabaseError("")
         setIsAdminAuthenticated(true)
-
         setActiveView("admin")
-
         setShowAdminLogin(false)
-
         setAdminPassword("")
-      } else {
-        setAdminError("Invalid admin credentials.")
+      } catch (error) {
+        console.error("Administrator sign-in failed.", error)
+        setAdminError(
+          error instanceof Error ? error.message : "Administrator sign-in failed.",
+        )
+      } finally {
+        setIsLoggingIn(false)
       }
-    }, 350)
+    })()
   }
 
-  const updateGuestStatus = (guestId: string, nextStatus: GuestStatus) => {
+  const updateGuestStatus = async (
+    guestId: string,
+    nextStatus: GuestStatus,
+  ) => {
     const currentGuest = guests.find((guest) => guest.id === guestId)
 
-    if (!currentGuest) return
+    if (!currentGuest || !adminToken || updatingGuestId) return
+    setUpdatingGuestId(guestId)
 
-    const now = new Date()
-
-    const updatedGuest: GuestRecord =
-      nextStatus === "Pending"
-        ? {
-            ...currentGuest,
-
-            status: nextStatus,
-
-            confirmationDate: null,
-
-            confirmationTime: null,
-
-            confirmedAt: null,
-          }
-        : {
-            ...currentGuest,
-
-            status: nextStatus,
-
-            confirmationDate: formatDate(now),
-
-            confirmationTime: formatTime(now),
-
-            confirmedAt: now.toISOString(),
-          }
-
-    setGuests((current) =>
-      current.map((guest) => (guest.id === guestId ? updatedGuest : guest)),
-    )
-
-    if (verifiedGuest?.id === guestId) setVerifiedGuest(updatedGuest)
+    try {
+      const result = await databaseRequest<{ guest: GuestRecord }>(
+        {
+          action: "admin:set-status",
+          usn: currentGuest.usn,
+          status: nextStatus,
+        },
+        adminToken,
+      )
+      setGuests((current) =>
+        current.map((guest) =>
+          guest.id === guestId ? result.guest : guest,
+        ),
+      )
+      setDatabaseError("")
+      if (verifiedGuest?.id === guestId) setVerifiedGuest(result.guest)
+    } catch (error) {
+      console.error("Could not update guest attendance status.", error)
+      setDatabaseError(
+        error instanceof Error
+          ? error.message
+          : "Guest attendance status could not be updated.",
+      )
+    } finally {
+      setUpdatingGuestId(null)
+    }
   }
 
   const handleAddGuest = (event: FormEvent<HTMLFormElement>) => {
@@ -849,31 +547,71 @@ export default function App() {
       return
     }
 
-    setGuests((current) => [
-      ...current,
-
-      {
-        id: `${usn}-${Date.now()}`,
-
-        name,
-
-        usn,
-
-        status: "Pending",
-
-        confirmationDate: null,
-
-        confirmationTime: null,
-
-        confirmedAt: null,
-      },
-    ])
-
-    form.reset()
+    setIsAddingGuest(true)
+    void (async () => {
+      try {
+        const result = await databaseRequest<{ guest: GuestRecord }>(
+          { action: "admin:add", name, usn },
+          adminToken,
+        )
+        setGuests((current) => [...current, result.guest])
+        setDatabaseError("")
+        form.reset()
+      } catch (error) {
+        console.error("Could not add guest.", error)
+        setGuestFormError(
+          error instanceof Error ? error.message : "Guest could not be added.",
+        )
+      } finally {
+        setIsAddingGuest(false)
+      }
+    })()
   }
 
-  const handleGuestRemoval = (guestId: string) => {
-    setGuests((current) => current.filter((guest) => guest.id !== guestId))
+  const handleGuestRemoval = async (guestId: string) => {
+    const guest = guests.find((item) => item.id === guestId)
+    if (!guest || !adminToken || updatingGuestId) return
+    setUpdatingGuestId(guestId)
+
+    try {
+      await databaseRequest<{ removed: boolean }>(
+        { action: "admin:remove", usn: guest.usn },
+        adminToken,
+      )
+      setGuests((current) => current.filter((item) => item.id !== guestId))
+      setDatabaseError("")
+    } catch (error) {
+      console.error("Could not remove guest.", error)
+      setDatabaseError(
+        error instanceof Error ? error.message : "Guest could not be removed.",
+      )
+    } finally {
+      setUpdatingGuestId(null)
+    }
+  }
+
+  const handleSavePdf = async () => {
+    if (isGeneratingPdf) return
+    setIsGeneratingPdf(true)
+    setPdfError("")
+    setPdfSuccess("")
+
+    try {
+      const { downloadInvitationPdf } = await import("./pdf")
+      await downloadInvitationPdf(
+        `acquaintance-party-invitation-${normalizeUsn(verifiedGuest?.usn ?? "guest")}.pdf`,
+      )
+      setPdfSuccess("Your invitation PDF has been downloaded.")
+    } catch (error) {
+      console.error("Could not generate the invitation PDF.", error)
+      setPdfError(
+        error instanceof Error
+          ? error.message
+          : "The invitation PDF could not be generated. Please try again.",
+      )
+    } finally {
+      setIsGeneratingPdf(false)
+    }
   }
 
   const exportGuests = (mode: "all" | "attending") => {
@@ -938,6 +676,7 @@ export default function App() {
                     <button
                       type="button"
                       className="mini-button"
+                      disabled={updatingGuestId !== null}
                       onClick={() => updateGuestStatus(guest.id, "Attending")}
                     >
                       Attending
@@ -945,6 +684,7 @@ export default function App() {
                     <button
                       type="button"
                       className="mini-button"
+                      disabled={updatingGuestId !== null}
                       onClick={() =>
                         updateGuestStatus(guest.id, "Not Attending")
                       }
@@ -957,6 +697,7 @@ export default function App() {
                   <button
                     type="button"
                     className="mini-button"
+                    disabled={updatingGuestId !== null}
                     onClick={() => updateGuestStatus(guest.id, "Not Attending")}
                   >
                     Mark Not Attending
@@ -966,6 +707,7 @@ export default function App() {
                   <button
                     type="button"
                     className="mini-button"
+                    disabled={updatingGuestId !== null}
                     onClick={() => updateGuestStatus(guest.id, "Attending")}
                   >
                     Mark Attending
@@ -975,6 +717,7 @@ export default function App() {
                   <button
                     type="button"
                     className="mini-button danger"
+                    disabled={updatingGuestId !== null}
                     onClick={() => updateGuestStatus(guest.id, "Pending")}
                   >
                     Reset
@@ -984,6 +727,7 @@ export default function App() {
                   <button
                     type="button"
                     className="mini-button danger"
+                    disabled={updatingGuestId !== null}
                     onClick={() => handleGuestRemoval(guest.id)}
                   >
                     Remove
@@ -1030,9 +774,9 @@ export default function App() {
             ) : null}
           </header>
 
-          {storageError ? (
+          {databaseError ? (
             <p className="error-banner storage-error" role="alert">
-              {storageError}
+              {databaseError}
             </p>
           ) : null}
 
@@ -1110,7 +854,7 @@ export default function App() {
                   <button
                     className="primary-button"
                     type="submit"
-                    disabled={isVerifyingUsn}
+                    disabled={isVerifyingUsn || !isDatabaseConfigured}
                   >
                     Verify USN
                   </button>
@@ -1238,6 +982,11 @@ export default function App() {
                           I CAN'T ATTEND
                         </button>
                       </div>
+                      {verificationError ? (
+                        <p className="error-banner" role="alert">
+                          {verificationError}
+                        </p>
+                      ) : null}
                       {guestIsConfirmed ? (
                         <p className="response-note">
                           Your response has already been recorded as{" "}
@@ -1248,10 +997,21 @@ export default function App() {
                     <button
                       type="button"
                       className="invitation-print-button"
-                      onClick={() => window.print()}
+                      onClick={() => void handleSavePdf()}
+                      disabled={isGeneratingPdf}
                     >
-                      Print / Save as PDF
+                      {isGeneratingPdf ? "Preparing PDF…" : "Save PDF"}
                     </button>
+                    {pdfError ? (
+                      <p className="error-banner" role="alert">
+                        {pdfError}
+                      </p>
+                    ) : null}
+                    {pdfSuccess ? (
+                      <p className="response-note" role="status">
+                        {pdfSuccess}
+                      </p>
+                    ) : null}
                   </div>
                 </article>
               </section>
@@ -1465,18 +1225,34 @@ export default function App() {
         </section>
       ) : null}
 
-      {isLoggingIn || isVerifyingUsn ? (
+      {isLoggingIn || isVerifyingUsn || isSavingAttendance || isGeneratingPdf ? (
         <div className="modal-backdrop loading-backdrop" role="presentation">
           <div className="loading-modal" role="status" aria-live="polite">
             <span className="loading-spinner" aria-hidden="true" />
             <p className="card-label">
-              {isVerifyingUsn ? "Guest Verification" : "Administrator Access"}
+              {isVerifyingUsn || isSavingAttendance
+                ? "Guest Attendance"
+                : isGeneratingPdf
+                  ? "Invitation PDF"
+                  : "Administrator Access"}
             </p>
-            <h2>{isVerifyingUsn ? "Verifying your USN" : "Signing you in"}</h2>
+            <h2>
+              {isVerifyingUsn
+                ? "Verifying your USN"
+                : isSavingAttendance
+                  ? "Saving your response"
+                  : isGeneratingPdf
+                    ? "Preparing your PDF"
+                    : "Signing you in"}
+            </h2>
             <p>
               {isVerifyingUsn
                 ? "Finding your invitation…"
-                : "Checking your password…"}
+                : isSavingAttendance
+                  ? "Recording your response securely…"
+                  : isGeneratingPdf
+                    ? "Creating your download…"
+                    : "Checking your password…"}
             </p>
           </div>
         </div>
@@ -1502,6 +1278,8 @@ export default function App() {
                 className="secondary-button danger-button"
                 onClick={() => {
                   setIsAdminAuthenticated(false)
+                  setAdminToken("")
+                  setGuests([])
                   setShowAdminLogin(false)
                   setActiveView("guest")
                 }}
@@ -1510,9 +1288,9 @@ export default function App() {
               </button>
             </div>
           </header>
-          {storageError ? (
+          {databaseError ? (
             <p className="error-banner" role="alert">
-              {storageError}
+              {databaseError}
             </p>
           ) : null}
           <section className="summary-grid">
@@ -1566,9 +1344,10 @@ export default function App() {
               <button
                 type="button"
                 className="secondary-button"
-                onClick={refreshGuestDatabase}
+                onClick={() => void refreshGuestDatabase()}
+                disabled={isRefreshingGuests}
               >
-                Refresh
+                {isRefreshingGuests ? "Refreshing…" : "Refresh"}
               </button>
               <button
                 type="button"
@@ -1595,8 +1374,12 @@ export default function App() {
                 placeholder="USN (e.g. ABE-0100)"
               />
               <input name="newGuest" type="text" placeholder="Guest name" />
-              <button type="submit" className="primary-button compact-button">
-                Add Guest
+              <button
+                type="submit"
+                className="primary-button compact-button"
+                disabled={isAddingGuest}
+              >
+                {isAddingGuest ? "Adding…" : "Add Guest"}
               </button>
             </form>
             {guestFormError ? (
@@ -1695,10 +1478,11 @@ export default function App() {
               <button
                 type="button"
                 className="primary-button"
+                disabled={isSavingAttendance}
                 onClick={() => {
                   const choice = attendanceConfirmationChoice
                   setAttendanceConfirmationChoice(null)
-                  handleConfirmAttendance(choice)
+                  void handleConfirmAttendance(choice)
                 }}
               >
                 Confirm

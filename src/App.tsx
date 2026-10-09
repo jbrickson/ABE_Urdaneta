@@ -29,89 +29,103 @@ const EVENT_DETAILS = {
 
 const PROGRAM_SCHEDULE = [
   {
-    time: "3:00 PM – 4:00 PM",
-    activity: "Registration, attendance & photo booth",
-    person: "SSC Officers / Advisers",
+    time: "3:00 PM – 3:30 PM",
+    activity: "Registration/Attendance and Photo Booth",
+    person: "Supreme Student Council & Adviser",
   },
-  { time: "4:00 – 4:10 PM", activity: "Prayer", person: "AVP" },
+  { time: "3:30 PM – 3:40 PM", activity: "Opening Prayer", person: "AVP" },
   {
-    time: "4:10 – 4:25 PM",
-    activity: "Welcome remarks",
-    person: "Dr. Jeannie J. Braun, LLB",
-  },
-  {
-    time: "4:25 – 4:35 PM",
-    activity: "Entrance of faculties and staff",
-    person: "SSC Officers",
+    time: "3:40 PM – 3:55 PM",
+    activity: "Welcome Remarks",
+    person: "Dr. Jeannie J. Bruan, LLB",
   },
   {
-    time: "4:35 – 4:40 PM",
-    activity: "Presentation of SSC Officers",
-    person: "SSC Advisers — Ms. Lovely Salguet & Mr. Mark Emarson Ayap",
+    time: "3:55 PM – 4:15 PM",
+    activity:
+      "Grand Entrance and Introduction of the School Director, College Dean, Program Head, SHS Academic Coordinator, Faculty Members, and Administrative Staff",
+    person: "Supreme Student Council Officers",
   },
   {
-    time: "4:40 – 4:45 PM",
-    activity: "Induction of SSC Officers",
-    person: "Dr. Jeannie J. Braun, LLB",
+    time: "4:15 PM – 4:25 PM",
+    activity:
+      "Mass Presentation and Induction of Department Officers for School Year 2026-2027",
+    person:
+      "Supreme Student Adviser: Sir Mark Emarson Ayap; Dr. Jeannie J. Bruan, LLB",
   },
   {
-    time: "4:45 – 4:55 PM",
-    activity: "Intermission dance number",
-    person: "SSC Officers",
+    time: "4:25 PM – 4:40 PM",
+    activity:
+      "Presentation and Induction of Supreme Student Council Officers for School Year 2026-2027",
+    person:
+      "Supreme Student Adviser: Ms. Lovely Salguet; Dr. Jeannie J. Bruan, LLB",
   },
   {
-    time: "4:55 – 5:05 PM",
-    activity: "A message from the Dean",
-    person: "Dean Terrence Spenzer Pascua, LPT, MBA",
+    time: "4:40 PM – 4:45 PM",
+    activity: "Inaugural Speech of the SSC",
+    person: "Presidents name",
   },
   {
-    time: "5:05 – 5:15 PM",
-    activity: "Department presentation",
-    person: "BSIT / CS",
+    time: "4:45 PM – 4:50 PM",
+    activity: "Intermission Dance Performance",
+    person: "Supreme Student Council Officers",
   },
   {
-    time: "5:15 – 5:25 PM",
-    activity: "Department presentation",
-    person: "BSHM — 2nd Year",
+    time: "4:50 PM – 5:00 PM",
+    activity: "Message from the College Dean",
+    person: "Mr. Terrence Spenzer Pascua, LPT, MBA, CHRA",
   },
   {
-    time: "5:25 – 5:45 PM",
-    activity: "Presentation of Mr. and Miss Acquaintance candidates",
+    time: "5:00 PM – 5:10 PM",
+    activity: "Department Presentation",
+    person: "BSA and BSBA",
+  },
+  {
+    time: "5:10 PM – 5:20 PM",
+    activity: "Department Presentation",
+    person: "BSHM- Second Year",
+  },
+  {
+    time: "5:20 PM – 5:40 PM",
+    activity: "Presentation of Mr. and Miss Acquaintance Candidates",
     person: "Emcees",
   },
   {
-    time: "5:45 – 5:55 PM",
-    activity: "Department presentation",
-    person: "BSA / BSBA",
+    time: "5:40 PM – 5:50 PM",
+    activity: "Department Presentation",
+    person: "BSIT and BSCS",
   },
   {
-    time: "5:55 – 6:15 PM",
+    time: "5:50 PM – 6:10 PM",
     activity: "Search for Dancing King and Queen",
-    person: "Emcees",
+    person: "All Participants",
   },
   {
-    time: "6:15 – 6:25 PM",
-    activity: "Department presentation",
-    person: "BSHM — 1st Year",
+    time: "6:10 PM – 6:20 PM",
+    activity: "Department Presentation",
+    person: "BSHM- First Year",
   },
   {
-    time: "6:25 – 6:35 PM",
-    activity: "Department presentation",
+    time: "6:20 PM – 6:30 PM",
+    activity: "Department Presentation",
     person: "Senior High School",
   },
-  { time: "6:35 – 7:00 PM", activity: "Dinner", person: "—" },
+  { time: "6:30 PM – 7:00 PM", activity: "Dinner", person: "" },
   {
-    time: "7:00 – 7:15 PM",
+    time: "7:00 PM – 7:15 PM",
     activity:
-      "Announcement of Mr. and Miss Acquaintance and Dancing King and Queen",
+      "Announcement and Recognition of Winners: Mr. and Miss Acquaintance; Dancing King and Queen; Mr. and Miss Congeniality; Crowd's Darling",
     person: "Emcees",
   },
   {
-    time: "7:15 – 7:20 PM",
-    activity: "Closing remarks",
-    person: "Ms. Tiffany B. Ramos",
+    time: "7:15 PM – 7:20 PM",
+    activity: "Closing Remarks",
+    person: "Ms. Tiffany B.Ramos, MBA, CHRA",
   },
-  { time: "7:20 – 8:00 PM", activity: "Dance, Dance, Dance", person: "—" },
+  {
+    time: "7:20 PM – 8:00 PM",
+    activity: "Dance, Dance, Dance: Open Dance Floor",
+    person: "All Participants",
+  },
 ]
 
 function normalizeName(value: string) {
@@ -927,29 +941,6 @@ export default function App() {
                         <strong>{EVENT_DETAILS.dressCode}</strong>
                       </div>
                     </div>
-                    <details className="schedule-details">
-                      <summary>View program schedule</summary>
-                      <div className="table-scroll">
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Time</th>
-                              <th>Activity</th>
-                              <th>In charge</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {PROGRAM_SCHEDULE.map((item) => (
-                              <tr key={`${item.time}-${item.activity}`}>
-                                <td>{item.time}</td>
-                                <td>{item.activity}</td>
-                                <td>{item.person}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
                     <div className="attendance-panel">
                       <p className="panel-title">
                         Please choose your attendance
